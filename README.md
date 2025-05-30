@@ -32,3 +32,18 @@ To run locally:
    ```bash
    git clone https://github.com/yourusername/iching-dice.git
    cd iching-dice
+   ```
+
+2. Open `index.html` in your browser.
+
+To deploy:
+
+* Hosted via **GitHub Pages**. Enable it in your repo settings under **Pages**.
+
+## 📜 License
+
+This project is open source and available under the CC0 license.
+
+## ✨ Credits
+
+Trigram and hexagram names are following [Edward Hacker’s handbook](https://archive.org/details/ichinghandbookpr0000hack).
