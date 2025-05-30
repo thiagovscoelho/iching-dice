@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D8 to I Ching Hexagram Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            font-weight: 300;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        input[type="text"] {
+            width: 150px;
+            height: 60px;
+            font-size: 1.8em;
+            text-align: center;
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input[type="text"]:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+            transform: scale(1.05);
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 20px;
+            color: white;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .result-card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .hexagram-section {
+            margin-bottom: 30px;
+        }
+
+        .hexagram-glyph {
+            font-size: 5em;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hexagram-name {
+            font-size: 2.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .hexagram-numbers {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .trigrams-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .trigram-card {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        .trigram-label {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .trigram-glyph {
+            font-size: 3em;
+            margin: 10px 0;
+        }
+
+        .trigram-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .trigram-info {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .error {
+            color: #ff6b6b;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+        .instructions {
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .hexagram-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .detail-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .detail-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>2D8 to I Ching Hexagram</h1>
+        
+        <div class="instructions">
+            Roll two 8-sided dice and enter both results separated by a comma (e.g., "3,7"). The first number becomes the lower trigram, the second becomes the upper trigram.
+        </div>
+
+        <div class="input-section">
+            <label for="diceRolls">Enter your 2D8 rolls (lower,upper):</label>
+            <input type="text" id="diceRolls" placeholder="3,7" oninput="convertToHexagram()">
+            <div id="error" class="error"></div>
+        </div>
+
+        <div id="result" class="result-card">
+            <div class="hexagram-section">
+                <div id="hexagram-glyph" class="hexagram-glyph"></div>
+                <div id="hexagram-name" class="hexagram-name"></div>
+                <div id="hexagram-numbers" class="hexagram-numbers"></div>
+                
+                <div class="hexagram-details">
+
+                    <div class="detail-item">
+                        <div class="detail-label">Binary</div>
+                        <div id="binary" class="detail-value"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Decimal</div>
+                        <div id="decimal" class="detail-value"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Dice Rolls</div>
+                        <div id="dice-rolls" class="detail-value"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="trigrams-section">
+                <div class="trigram-card">
+                    <div class="trigram-label">Lower Trigram</div>
+                    <div id="lower-glyph" class="trigram-glyph"></div>
+                    <div id="lower-name" class="trigram-name"></div>
+                    <div id="lower-info" class="trigram-info"></div>
+                </div>
+                <div class="trigram-card">
+                    <div class="trigram-label">Upper Trigram</div>
+                    <div id="upper-glyph" class="trigram-glyph"></div>
+                    <div id="upper-name" class="trigram-name"></div>
+                    <div id="upper-info" class="trigram-info"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const trigrams = {
+            1: { binary: "000", decimal: "0", name: "Earth", glyph: "☷" },
+            2: { binary: "001", decimal: "1", name: "Mountain", glyph: "☶" },
+            3: { binary: "010", decimal: "2", name: "Water", glyph: "☵" },
+            4: { binary: "011", decimal: "3", name: "Wind", glyph: "☴" },
+            5: { binary: "100", decimal: "4", name: "Thunder", glyph: "☳" },
+            6: { binary: "101", decimal: "5", name: "Fire", glyph: "☲" },
+            7: { binary: "110", decimal: "6", name: "Lake", glyph: "☱" },
+            8: { binary: "111", decimal: "7", name: "Heaven", glyph: "☰" }
+        };
+
+        const hexagrams = {
+            "111-111": { textual: "01", decimal: "63", name: "Heaven", glyph: "䷀" },
+            "000-000": { textual: "02", decimal: "0", name: "Earth", glyph: "䷁" },
+            "100-010": { textual: "03", decimal: "34", name: "Sprouting", glyph: "䷂" },
+            "010-001": { textual: "04", decimal: "17", name: "The Young Shoot", glyph: "䷃" },
+            "111-010": { textual: "05", decimal: "58", name: "Getting Wet", glyph: "䷄" },
+            "010-111": { textual: "06", decimal: "23", name: "Grievance", glyph: "䷅" },
+            "010-000": { textual: "07", decimal: "16", name: "An Army", glyph: "䷆" },
+            "000-010": { textual: "08", decimal: "2", name: "Alliance", glyph: "䷇" },
+            "111-011": { textual: "09", decimal: "59", name: "Small Restraint/Small Accumulation", glyph: "䷈" },
+            "110-111": { textual: "10", decimal: "55", name: "Treading", glyph: "䷉" },
+            "111-000": { textual: "11", decimal: "56", name: "Peace/Flowing", glyph: "䷊" },
+            "000-111": { textual: "12", decimal: "7", name: "Standstill", glyph: "䷋" },
+            "101-111": { textual: "13", decimal: "47", name: "Companions", glyph: "䷌" },
+            "111-101": { textual: "14", decimal: "61", name: "Great Possessions", glyph: "䷍" },
+            "001-000": { textual: "15", decimal: "8", name: "Modesty", glyph: "䷎" },
+            "000-100": { textual: "16", decimal: "4", name: "Contentment", glyph: "䷏" },
+            "100-110": { textual: "17", decimal: "38", name: "The Chase", glyph: "䷐" },
+            "011-001": { textual: "18", decimal: "25", name: "Illness/Decay", glyph: "䷑" },
+            "110-000": { textual: "19", decimal: "48", name: "Authority Approaches", glyph: "䷒" },
+            "000-011": { textual: "20", decimal: "3", name: "Observing", glyph: "䷓" },
+            "100-101": { textual: "21", decimal: "37", name: "Biting Through", glyph: "䷔" },
+            "101-001": { textual: "22", decimal: "41", name: "Adornment", glyph: "䷕" },
+            "000-001": { textual: "23", decimal: "1", name: "Falling", glyph: "䷖" },
+            "100-000": { textual: "24", decimal: "32", name: "Return", glyph: "䷗" },
+            "100-111": { textual: "25", decimal: "39", name: "No Error/No Expectations", glyph: "䷘" },
+            "111-001": { textual: "26", decimal: "57", name: "Big Restraint/Big Accumulation", glyph: "䷙" },
+            "100-001": { textual: "27", decimal: "33", name: "Bulging Cheeks", glyph: "䷚" },
+            "011-110": { textual: "28", decimal: "30", name: "Big in Excess", glyph: "䷛" },
+            "010-010": { textual: "29", decimal: "18", name: "Water", glyph: "䷜" },
+            "101-101": { textual: "30", decimal: "45", name: "Fire", glyph: "䷝" },
+            "001-110": { textual: "31", decimal: "14", name: "Mutual Influence", glyph: "䷞" },
+            "011-100": { textual: "32", decimal: "28", name: "Constancy", glyph: "䷟" },
+            "001-111": { textual: "33", decimal: "15", name: "The Piglet", glyph: "䷠" },
+            "111-100": { textual: "34", decimal: "60", name: "Big Uses Force", glyph: "䷡" },
+            "000-101": { textual: "35", decimal: "5", name: "Advance", glyph: "䷢" },
+            "101-000": { textual: "36", decimal: "40", name: "The Bright (Calling) Pheasant", glyph: "䷣" },
+            "101-011": { textual: "37", decimal: "43", name: "The Family", glyph: "䷤" },
+            "110-101": { textual: "38", decimal: "53", name: "Estrangement", glyph: "䷥" },
+            "001-010": { textual: "39", decimal: "10", name: "Obstruction", glyph: "䷦" },
+            "010-100": { textual: "40", decimal: "20", name: "Obstruction Removed", glyph: "䷧" },
+            "110-001": { textual: "41", decimal: "49", name: "Decrease", glyph: "䷨" },
+            "100-011": { textual: "42", decimal: "35", name: "Increase", glyph: "䷩" },
+            "111-110": { textual: "43", decimal: "62", name: "Decisive", glyph: "䷪" },
+            "011-111": { textual: "44", decimal: "31", name: "Meeting/Subjugated", glyph: "䷫" },
+            "000-110": { textual: "45", decimal: "6", name: "Gathering Together", glyph: "䷬" },
+            "011-000": { textual: "46", decimal: "24", name: "Pushing Upwards", glyph: "䷭" },
+            "010-110": { textual: "47", decimal: "22", name: "Burdened / Exhausted", glyph: "䷮" },
+            "011-010": { textual: "48", decimal: "26", name: "A Well", glyph: "䷯" },
+            "101-110": { textual: "49", decimal: "46", name: "Revolution", glyph: "䷰" },
+            "011-101": { textual: "50", decimal: "29", name: "The Ritual Caldron", glyph: "䷱" },
+            "100-100": { textual: "51", decimal: "36", name: "Thunder", glyph: "䷲" },
+            "001-001": { textual: "52", decimal: "9", name: "Mountain", glyph: "䷳" },
+            "001-011": { textual: "53", decimal: "11", name: "Gradual Advance", glyph: "䷴" },
+            "110-100": { textual: "54", decimal: "52", name: "A Maiden Marries", glyph: "䷵" },
+            "101-100": { textual: "55", decimal: "44", name: "Abundance", glyph: "䷶" },
+            "001-101": { textual: "56", decimal: "13", name: "The Traveler", glyph: "䷷" },
+            "011-011": { textual: "57", decimal: "27", name: "Wind", glyph: "䷸" },
+            "110-110": { textual: "58", decimal: "54", name: "Lake", glyph: "䷹" },
+            "010-011": { textual: "59", decimal: "19", name: "Flood / Dispersion", glyph: "䷺" },
+            "110-010": { textual: "60", decimal: "50", name: "Restraint (Regulations)", glyph: "䷻" },
+            "110-011": { textual: "61", decimal: "51", name: "Inmost Sincerity (Allegiance)", glyph: "䷼" },
+            "001-100": { textual: "62", decimal: "12", name: "Small in Excess", glyph: "䷽" },
+            "101-010": { textual: "63", decimal: "42", name: "Already Across the River", glyph: "䷾" },
+            "010-101": { textual: "64", decimal: "21", name: "Not Yet Across the River", glyph: "䷿" }
+        };
+
+        function convertToHexagram() {
+            const input = document.getElementById('diceRolls');
+            const errorDiv = document.getElementById('error');
+            const resultCard = document.getElementById('result');
+            
+            // Clear previous error
+            errorDiv.textContent = '';
+            
+            const inputValue = input.value.trim();
+            
+            if (!inputValue) {
+                resultCard.classList.remove('show');
+                return;
+            }
+            
+            // Parse input
+            const parts = inputValue.split(',');
+            if (parts.length !== 2) {
+                errorDiv.textContent = 'Please enter two numbers separated by a comma (e.g., "3,7")';
+                resultCard.classList.remove('show');
+                return;
+            }
+            
+            const lowerRoll = parseInt(parts[0].trim());
+            const upperRoll = parseInt(parts[1].trim());
+            
+            if (!lowerRoll || !upperRoll || lowerRoll < 1 || lowerRoll > 8 || upperRoll < 1 || upperRoll > 8) {
+                errorDiv.textContent = 'Both numbers must be between 1 and 8';
+                resultCard.classList.remove('show');
+                return;
+            }
+            
+            // Get trigrams
+            const lowerTrigram = trigrams[lowerRoll];
+            const upperTrigram = trigrams[upperRoll];
+            
+            // Create binary key for hexagram lookup
+            const hexagramKey = `${lowerTrigram.binary}-${upperTrigram.binary}`;
+            const hexagram = hexagrams[hexagramKey];
+            
+            if (!hexagram) {
+                errorDiv.textContent = 'Hexagram not found';
+                resultCard.classList.remove('show');
+                return;
+            }
+            
+            // Update hexagram display
+            document.getElementById('hexagram-glyph').textContent = hexagram.glyph;
+            document.getElementById('hexagram-name').textContent = hexagram.name;
+            document.getElementById('hexagram-numbers').textContent = `I Ching #${hexagram.textual}`;
+            document.getElementById('binary').textContent = hexagramKey;
+            document.getElementById('decimal').textContent = hexagram.decimal;
+            document.getElementById('dice-rolls').textContent = `${lowerRoll},${upperRoll}`;
+            
+            // Update trigram displays
+            document.getElementById('lower-glyph').textContent = lowerTrigram.glyph;
+            document.getElementById('lower-name').textContent = lowerTrigram.name;
+            document.getElementById('lower-info').textContent = `D8: ${lowerRoll} | Binary: ${lowerTrigram.binary} (${lowerTrigram.decimal})`;
+            
+            document.getElementById('upper-glyph').textContent = upperTrigram.glyph;
+            document.getElementById('upper-name').textContent = upperTrigram.name;
+            document.getElementById('upper-info').textContent = `D8: ${upperRoll} | Binary: ${upperTrigram.binary} (${upperTrigram.decimal})`;
+            
+            // Show result with animation
+            resultCard.classList.add('show');
+        }
+
+        // Allow Enter key to trigger conversion
+        document.getElementById('diceRolls').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertToHexagram();
+            }
+        });
+
+        // Focus on input when page loads
+        window.addEventListener('load', function() {
+            document.getElementById('diceRolls').focus();
+        });
+    </script>
+</body>
+</html>
