@@ -185,6 +185,29 @@
             font-size: 1.1em;
             font-weight: bold;
         }
+
+        .legge-button {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border: none;
+            color: white;
+            padding: 15px 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+            margin-top: 20px;
+        }
+
+        .legge-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        .legge-button:active {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -222,6 +245,10 @@
                         <div id="dice-rolls" class="detail-value"></div>
                     </div>
                 </div>
+                
+                <button id="legge-button" class="legge-button" onclick="openLeggeReading()">
+                    📖 Read Legge Translation
+                </button>
             </div>
 
             <div class="trigrams-section">
@@ -374,6 +401,9 @@
             document.getElementById('decimal').textContent = hexagram.decimal;
             document.getElementById('dice-rolls').textContent = `${lowerRoll},${upperRoll}`;
             
+            // Store current textual number for Legge button
+            currentTextualNumber = hexagram.textual;
+            
             // Update trigram displays
             document.getElementById('lower-glyph').textContent = lowerTrigram.glyph;
             document.getElementById('lower-name').textContent = lowerTrigram.name;
@@ -398,6 +428,16 @@
         window.addEventListener('load', function() {
             document.getElementById('diceRolls').focus();
         });
+
+        let currentTextualNumber = null;
+
+        function openLeggeReading() {
+            if (currentTextualNumber) {
+                const paddedNumber = currentTextualNumber.padStart(2, '0');
+                const url = `https://www.sacred-texts.com/ich/ic${paddedNumber}.htm`;
+                window.open(url, '_blank');
+            }
+        }
     </script>
 </body>
 </html>
